@@ -1,9 +1,11 @@
 import sqlite3
 import os
 from flask import Flask, request, g
+from flask_cors import CORS
 import json
 
 app = Flask(__name__)
+CORS(app)
 app.config["DEBUG"] = True
 
 # create a default path to connect to and create (if necessary) a database

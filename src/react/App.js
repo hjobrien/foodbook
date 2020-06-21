@@ -3,6 +3,8 @@ import React from 'react';
 import './App.css';
 
 import { channels } from '../shared/constants';
+import RecipeListItem from './RecipeListItem.js'
+
 const { ipcRenderer } = window;
 
 class App extends React.Component {
@@ -11,6 +13,8 @@ class App extends React.Component {
     this.state = {
       appName: '',
       appVersion: '',
+      numRecipies: 0,
+      recipeList: [],
     };
     ipcRenderer.send(channels.APP_INFO);
     ipcRenderer.on(channels.APP_INFO, (event, arg) => {
@@ -18,15 +22,45 @@ class App extends React.Component {
       const { appName, appVersion } = arg;
       this.setState({ appName, appVersion });
     });
+    this.getRecipies();
+
+  }
+
+  getRecipies() {
+    fetch('http://127.0.0.1:5000/getFirst')
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      this.setState({numRecipies: data.num_entries})
+      this.setState({recipeList: data.entries})
+    })
+  }
+
+  renderRecipeList(recipies) {
+    return recipies.map(recipe => (<RecipeListItem name={recipe.name} desc={recipe.description}/>));
   }
 
   render() {
-    const { appName, appVersion } = this.state;
+    const { appName, appVersion} = this.state;
     return (
       <div className="App">
         <header className="App-header">
-          <p>{appName} version {appVersion}</p>
+
         </header>
+        <div id="recipe-list">
+          <div>
+          <p>
+            {this.renderRecipeList(this.state.recipeList)}
+          </p>
+          </div>
+        </div>
+
+        <footer>
+          <div id="version-data">
+              <p>{appName} version {appVersion}</p>
+          </div>
+        </footer>
+
 
       </div>
     );
