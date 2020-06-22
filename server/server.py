@@ -47,17 +47,18 @@ def db_init(db_path=DEFAULT_PATH):
 
 @app.route('/addRecipe', methods=['POST'])
 def add_recipe():
-    # TODO: need to handle new ingredients
+    # TODO: need to handle new ingredients: to do this, just add ALL ingredients with an "IF NOT EXISTS," then add the recipe, then add the bindings in the thitd table
     name = request.body.get('name')
     description = request.body.get('description')
     ingredients = request.body.get('ingredients')
     conn = get_db()
     c = conn.cursor()
+    c.executemany("INSERT INTO ingredients VALUES (?) WHERE NOT EXISTS;", ingredients[name])
     c.execute("INSERT INTO recipies VALUES (?, ?);", (name, description))
-    c.execute("SELECT ROWID FROM recipies WHERE name == ?;", name)
-    recipeID = c.fetchone()
-    for ingredientID, name in c.execute("SELECT ROWID, name FROM ingredients WHERE name IN ?;", ingredients):
-        c.execute("INSERT INTO recipeIngredients VALUES (?, ?, ?);", recipeID, ingredientID, ingredients[name])
+    # for ingredientID, name in c.execute("SELECT ROWID, name FROM ingredients WHERE name IN ?;", ingredients):
+    c.executemany("INSERT INTO recipeIngredients VALUES "\
+        "((SELECT ROWID FROM RECIPIES WHERE NAME = ?),"\
+            " (SELECT ROWID FROM ingredients WHERE NAME = ?), ?);", name, ingredients[name], ingredients[name])
     conn.commit() # might need to add this above too in case there is a race between the insert and select above
 
 @app.route('/getFirst', methods=['GET'])
