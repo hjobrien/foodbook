@@ -1,9 +1,10 @@
 import React from 'react';
 // import logo from './logo.svg';
-import './App.css';
+import './css/App.css';
 
 import { channels } from '../shared/constants';
 import RecipeListItem from './RecipeListItem.js'
+import AddRecipeButton from './AddRecipeButton.js'
 
 const { ipcRenderer } = window;
 
@@ -37,7 +38,7 @@ class App extends React.Component {
   }
 
   renderRecipeList(recipies) {
-    return recipies.map(recipe => (<RecipeListItem name={recipe.name} desc={recipe.description}/>));
+    return recipies.map(recipe => (<RecipeListItem key={recipe.name} name={recipe.name} desc={recipe.description}/>));
   }
 
   render() {
@@ -45,13 +46,11 @@ class App extends React.Component {
     return (
       <div className="App">
         <header className="App-header">
-
+          <AddRecipeButton/>
         </header>
         <div id="recipe-list">
           <div>
-          <p>
             {this.renderRecipeList(this.state.recipeList)}
-          </p>
           </div>
         </div>
 
