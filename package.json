@@ -13,7 +13,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "sass-loader": "^8.0.2"
+    "sass-loader": "^8.0.2",
+    "undux": "^5.2.0"
   },
   "scripts": {
     "start": "export BROWSER=none && react-scripts start",

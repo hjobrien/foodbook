@@ -1,0 +1,36 @@
+$uiAccent: grey
+// TODO: need to get this working with imports
+
+
+#AddRecipeButton
+    display: flex
+    align-items: center
+    justify-content: center
+    background: lightgreen
+    min-height: 30px
+    min-width: 90px
+    border: 2px solid $uiAccent
+    border-radius: 4px
+    margin-right: 10px
+    font-size: 10pt
+    font-weight: bold
+    color: $uiAccent
+    cursor: pointer
+
+#AddRecipeDialogBackground
+    min-width: 100vw
+    min-height: 100vh
+    position: absolute
+    color: black
+    background: rgba(255,255,255,0.8) //hack to make parent translucent but not child
+
+
+#AddRecipeDialog
+    height: 60vh
+    width: 60vw
+    background: white
+    position: absolute
+    top: 20vh
+    left: 20vw
+    border: 2px solid $uiAccent
+

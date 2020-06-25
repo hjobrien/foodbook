@@ -1,10 +1,12 @@
 import React from 'react';
-// import logo from './logo.svg';
+import { channels } from '../shared/constants';
+
 import './css/App.css';
 
-import { channels } from '../shared/constants';
 import RecipeListItem from './RecipeListItem.js'
 import AddRecipeButton from './AddRecipeButton.js'
+import AddRecipeDialogue from './AddRecipeDialog.js'
+import Store from './Store.js'
 
 const { ipcRenderer } = window;
 
@@ -44,24 +46,27 @@ class App extends React.Component {
   render() {
     const { appName, appVersion} = this.state;
     return (
-      <div className="App">
-        <header className="App-header">
-          <AddRecipeButton/>
-        </header>
-        <div id="recipe-list">
-          <div>
-            {this.renderRecipeList(this.state.recipeList)}
+      <Store.Container>
+        <div className="App">
+          <header className="App-header">
+            <AddRecipeButton/>
+          </header>
+          <AddRecipeDialogue/>
+          <div id="recipe-list">
+            <div>
+              {this.renderRecipeList(this.state.recipeList)}
+            </div>
           </div>
+
+          <footer>
+            <div id="version-data">
+                <p>{appName} version {appVersion}</p>
+            </div>
+          </footer>
+
+
         </div>
-
-        <footer>
-          <div id="version-data">
-              <p>{appName} version {appVersion}</p>
-          </div>
-        </footer>
-
-
-      </div>
+      </Store.Container>
     );
   }
 }

@@ -37,9 +37,9 @@ def db_init(db_path=DEFAULT_PATH):
         "(ingredientID integer NOT NULL, "\
         "recipeID integer NOT NULL, "\
         "ingredientQuantity text NOT NULL, "\
-        "FOREIGN KEY (ingredientID) REFERENCES ingredients(ROWID), "\
-        "FOREIGN KEY (recipeID) REFERENCES recipies(ROWID), "\
-        "UNIQUE (ingredientID, recipeID));")
+        "FOREIGN KEY (ingredientID) REFERENCES ingredients(ROWID) ON DELETE CASCADE, "\
+        "FOREIGN KEY (recipeID) REFERENCES recipies(ROWID) ON DELETE CASCADE, "\
+        "UNIQUE (ingredientID, recipeID));") # should add another column for ingredient quantity (and perhaps another for unit?)
     c.executemany("INSERT INTO ingredients VALUES (?)", [('foo',), ('bar',)])
     c.execute("INSERT INTO recipies VALUES (?, ?);", ("example", "mix some things and combine"))
     c.execute("INSERT INTO recipies VALUES (?, ?);", ("bread", "kneed and pray"))
@@ -48,18 +48,40 @@ def db_init(db_path=DEFAULT_PATH):
 @app.route('/addRecipe', methods=['POST'])
 def add_recipe():
     # TODO: need to handle new ingredients: to do this, just add ALL ingredients with an "IF NOT EXISTS," then add the recipe, then add the bindings in the thitd table
-    name = request.body.get('name')
-    description = request.body.get('description')
-    ingredients = request.body.get('ingredients')
-    conn = get_db()
-    c = conn.cursor()
-    c.executemany("INSERT INTO ingredients VALUES (?) WHERE NOT EXISTS;", ingredients[name])
+    data = json.loads(request.data)
+    print(data)
+    name, ingredients, description = data['name'], data['ingredients'], data['description']
+    con = get_db()
+    c = con.cursor()
+    ingredients = tuple(ingredients.split(" "))
+    wrappedIngredients = list(map(lambda e: (e,), ingredients))
+
+    # FIXME On conflict ignore is SQLite specific, so this will have to change later
+    c.execute("BEGIN TRANSACTION;")
+    c.executemany("INSERT OR IGNORE INTO ingredients VALUES (?);", wrappedIngredients)
     c.execute("INSERT INTO recipies VALUES (?, ?);", (name, description))
-    # for ingredientID, name in c.execute("SELECT ROWID, name FROM ingredients WHERE name IN ?;", ingredients):
-    c.executemany("INSERT INTO recipeIngredients VALUES "\
-        "((SELECT ROWID FROM RECIPIES WHERE NAME = ?),"\
-            " (SELECT ROWID FROM ingredients WHERE NAME = ?), ?);", name, ingredients[name], ingredients[name])
-    conn.commit() # might need to add this above too in case there is a race between the insert and select above
+    c.execute("SELECT ROWID FROM ingredients WHERE name IN (%s);" %
+                           ','.join('?'*len(ingredients)), ingredients)
+    ingIDs = list(map(lambda e: e[0], c.fetchall()))
+    # TODO: add recipe quantity and unit
+    c.executemany('''INSERT INTO recipeIngredients VALUES (?,
+    (SELECT ROWID FROM recipies WHERE name = ?),
+     'notyetimplemented')''', zip(ingIDs, [name]*len(ingIDs)))
+    c.execute("COMMIT TRANSACTION;")
+    con.commit()
+    # c.executemany("INSERT INTO recipeIngredients ")
+    return {"a":"b"}
+    # name = request.body.get('name')
+    # description = request.body.get('description')
+    # ingredients = request.body.get('ingredients')
+    # conn = get_db()
+    # c = conn.cursor()
+    # c.executemany("INSERT INTO ingredients VALUES (?) WHERE NOT EXISTS;", ingredients[name])
+    # c.execute("INSERT INTO recipies VALUES (?, ?);", (name, description))
+    # c.executemany("INSERT INTO recipeIngredients VALUES "\
+    #     "((SELECT ROWID FROM RECIPIES WHERE NAME = ?),"\
+    #         " (SELECT ROWID FROM ingredients WHERE NAME = ?), ?);", name, ingredients[name], ingredients[name])
+    # conn.commit() # might need to add this above too in case there is a race between the insert and select above
 
 @app.route('/getFirst', methods=['GET'])
 def get_first_recipes():
