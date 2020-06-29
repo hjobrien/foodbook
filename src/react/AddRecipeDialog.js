@@ -21,7 +21,6 @@ class AddRecipeDialogue extends React.Component {
     }
 
     handleSubmit(event){
-        console.log(this.state);
         event.preventDefault();
         this.props.store.set("showAddRecipeScreen")(false)
         fetch('http://127.0.0.1:5000/addRecipe', {
@@ -29,7 +28,7 @@ class AddRecipeDialogue extends React.Component {
             body: JSON.stringify(this.state)
         })
         .then(response => response.json())
-        .then(data => console.log(data));
+        .then(data => this.props.store.set("recipeListStale")(true));
     }
 
     render(){
