@@ -13,6 +13,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "rxjs": "^6.5.5",
     "sass-loader": "^8.0.2",
     "undux": "^5.2.0"
   },
@@ -42,7 +43,8 @@
   },
   "devDependencies": {
     "electron": "^9.0.4",
-    "electron-builder": "^22.7.0"
+    "electron-builder": "^22.7.0",
+    "electron-devtools-installer": "^3.1.0"
   },
   "build": {
     "files": [
