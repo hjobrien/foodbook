@@ -19,3 +19,6 @@ print(cur.fetchall())
 
 cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
 print(cur.fetchall())
+
+cur.execute("SELECT * FROM recipeIngredients;")
+print(cur.fetchall())

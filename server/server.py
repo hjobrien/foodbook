@@ -56,7 +56,7 @@ def add_recipe():
     ingredients = tuple(ingredients.split(" "))
     wrappedIngredients = list(map(lambda e: (e,), ingredients))
 
-    # FIXME On conflict ignore is SQLite specific, so this will have to change later
+    # FIXME 'Or ignore' is SQLite specific, so this will have to change later
     c.execute("BEGIN TRANSACTION;")
     c.executemany("INSERT OR IGNORE INTO ingredients VALUES (?);", wrappedIngredients)
     c.execute("INSERT INTO recipies VALUES (?, ?);", (name, description))
@@ -88,7 +88,7 @@ def get_first_recipes():
     con = get_db()
     c = con.cursor()
     # c.execute("SELECT * FROM recipies LIMIT ?", request.args.get("limit"))
-    c.execute("SELECT * FROM recipies LIMIT 10;")
+    c.execute("SELECT * FROM recipies LIMIT 50;")
     return form_response(c.fetchall())
 
 def form_response(query_result):
@@ -116,7 +116,20 @@ def drop_tables():
     cur.execute("DROP TABLE ingredients;")
     cur.execute("DROP TABLE recipeIngredients;")
     con.commit()
-    con.close()
+    # con.close()
     return "dropped three tables"
+
+@app.route('/reset', methods=['GET'])
+def reset():
+    try:
+        drop_tables()
+    except sqlite3.OperationalError:
+        pass
+    try:
+        init()
+    except sqlite3.OperationalError:
+        pass
+
+    return "reset successful"
 
 app.run()
