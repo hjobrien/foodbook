@@ -53,7 +53,7 @@ def add_recipe():
     name, ingredients, description = data['name'], data['ingredients'], data['description']
     con = get_db()
     c = con.cursor()
-    ingredients = tuple(ingredients.split(" "))
+    ingredients = tuple(ingredients.split("\n"))
     wrappedIngredients = list(map(lambda e: (e,), ingredients))
 
     # FIXME 'Or ignore' is SQLite specific, so this will have to change later

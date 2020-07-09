@@ -31,30 +31,37 @@ class AddRecipeDialogue extends React.Component {
         .then(data => this.props.store.set("recipeListStale")(true));
     }
 
+    onKeyPress(event) {
+        if (event.which === 13 /* Enter */) {
+          event.preventDefault();
+        }
+    }
+
     render(){
         let store = this.props.store;
+        const numCols = 50;
         return store.get('showAddRecipeScreen') &&
         <div id="AddRecipeDialogBackground">
             <div id="AddRecipeDialog">
                 <form onSubmit={this.handleSubmit}>
-                    <label>Recipe Name
+                    <label>Name
                         <br></br>
-                        <input type="text" onChange={this.handleFormChangeFactory("name")}>
-                        </input>
+                        <textarea rows="1" cols={numCols} onChange={this.handleFormChangeFactory("name")} className="AddRecipeDialogFormMember">
+                        </textarea>
                     </label>
                     <br></br>
 
                     <label >Ingredients (new line separated)
                         <br></br>
-                        <input type="text" onChange={this.handleFormChangeFactory("ingredients")}>
-                        </input>
+                        <textarea rows="10" cols={numCols} onChange={this.handleFormChangeFactory("ingredients")} className="AddRecipeDialogFormMember">
+                        </textarea>
                     </label>
                     <br></br>
 
                     <label>Description
                         <br></br>
-                        <input type="text" onChange={this.handleFormChangeFactory("description")}>
-                        </input>
+                        <textarea rows="1" cols={numCols} onChange={this.handleFormChangeFactory("description")} className="AddRecipeDialogFormMember">
+                        </textarea>
                     </label>
                     <br></br>
 
