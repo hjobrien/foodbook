@@ -50,15 +50,16 @@ def add_recipe():
     # TODO: need to handle new ingredients: to do this, just add ALL ingredients with an "IF NOT EXISTS," then add the recipe, then add the bindings in the thitd table
     data = json.loads(request.data)
     print(data)
-    name, ingredients, description = data['name'], data['ingredients'], data['description']
+    name, ingredients, description = data['name'].strip(), data['ingredients'].strip(), data['description'].strip()
     con = get_db()
     c = con.cursor()
     ingredients = tuple(ingredients.split("\n"))
-    wrappedIngredients = list(map(lambda e: (e,), ingredients))
+    wrappedIngredientNames = list(map(lambda ingredient: (ingredient.split(" ")[2],), ingredients))
+    quantities = list(map(lambda ingredient: (" ".join(ingredient.split(" ")[0:2]),), ingredients))
 
     # FIXME 'Or ignore' is SQLite specific, so this will have to change later
     c.execute("BEGIN TRANSACTION;")
-    c.executemany("INSERT OR IGNORE INTO ingredients VALUES (?);", wrappedIngredients)
+    c.executemany("INSERT OR IGNORE INTO ingredients VALUES (?);", wrappedIngredientNames)
     c.execute("INSERT INTO recipies VALUES (?, ?);", (name, description))
     c.execute("SELECT ROWID FROM ingredients WHERE name IN (%s);" %
                            ','.join('?'*len(ingredients)), ingredients)
@@ -66,7 +67,7 @@ def add_recipe():
     # TODO: add recipe quantity and unit
     c.executemany('''INSERT INTO recipeIngredients VALUES (?,
     (SELECT ROWID FROM recipies WHERE name = ?),
-     'notyetimplemented')''', zip(ingIDs, [name]*len(ingIDs)))
+     ?)''', zip(ingIDs, [name]*len(ingIDs), quantities))
     c.execute("COMMIT TRANSACTION;")
     con.commit()
     # c.executemany("INSERT INTO recipeIngredients ")
